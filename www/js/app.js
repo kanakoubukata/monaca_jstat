@@ -105,12 +105,15 @@ let util = {
       if (!result) return;
     }
     // 今日のデータをオブジェクトにセット
-    //items[today] = count;
+    items[today] = count;
+    /* 
+    // テストデータ
     items['2018-02-01']=[35,40,60];
     items['2018-02-02']=[31,39,55];
     items['2018-02-03']=[37,52,57];
     items['2018-02-04']=[40,45,66];
     items['2018-02-05']=[32,48,68];
+    */
     
     // ローカルストレージに保存
     localStorage.setItem('count_data', JSON.stringify(items));
