@@ -40,13 +40,13 @@ ons.ready(function() {
   // 保存ボタンタップ時の処理
   $('#saveButton').on('click', () => {
     // ローカルストレージに保存
-    util.saveItem();
+    Util.saveItem();
   });
   
   // 分析結果の確認ボタンタップ時の処理
   $('#analyzeButton').on('click', () => {
     // 保存済みの全データを取得
-    let items = util.getItems();
+    let items = Util.getItems();
     // 値の部分のみをArray型で抽出
     let values = Object.values(items);
     // 2次元配列の行と列を入れ替える
@@ -55,7 +55,7 @@ ons.ready(function() {
     // 分散分析
     let anovaPvalue = jStat.anovaftest.apply(this, targetData);
     let message = '';
-    if (anovaPvalue < 0.01){
+    if (anovaPvalue < 0.05){
       message += '3グループの母平均に差があります<br>';
     } else {
       message += '3グループの母平均に差はありません<br>';
@@ -69,7 +69,7 @@ ons.ready(function() {
       let factor1 = value[0][0];
       let factor2 = value[0][1];
       let p = value[1];
-      if(p < 0.01){
+      if(p < 0.05){
         message += $('#dataLabels ons-button').eq(factor1).text() + 'と';
         message += $('#dataLabels ons-button').eq(factor2).text() + '間に差があります<br>';
       }  
@@ -80,9 +80,9 @@ ons.ready(function() {
 });
 
 // ローカルストレージ操作関連
-let util = {
+class Util {
   // ローカルストレージのデータを取得
-  getItems: () => {
+  static getItems() {
     let localData = localStorage.getItem('count_data');
     if(localData !== null) {
       // ローカルストレージにデータがあれば、オブジェクト型に復元して返す
@@ -91,14 +91,14 @@ let util = {
       // なければ、空のオブジェクトを返す
       return {};
     }
-  },
+  }
   // 今日のデータを保存
-  saveItem: () => {
+  static saveItem() {
     // 今日の日付をyyyy-MM-dd形式にする
     let date = new Date();
     let today = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
     // ローカルストレージのデータを取得
-    let items = util.getItems();
+    let items = this.getItems();
     if(today in items) {
       // 既に今日の分のデータが保存済みの場合
       let result = confirm('本日分のデータを上書きしますか？')
@@ -106,13 +106,13 @@ let util = {
     }
     // 今日のデータをオブジェクトにセット
     items[today] = count;
-    /* 
+    /*
     // テストデータ
-    items['2018-02-01']=[35,40,60];
-    items['2018-02-02']=[31,39,55];
-    items['2018-02-03']=[37,52,57];
-    items['2018-02-04']=[40,45,66];
-    items['2018-02-05']=[32,48,68];
+    items['2018-02-01']=[40,50,60];
+    items['2018-02-02']=[39,42,55];
+    items['2018-02-03']=[52,46,57];
+    items['2018-02-04']=[45,43,66];
+    items['2018-02-05']=[48,62,68];
     */
     
     // ローカルストレージに保存
