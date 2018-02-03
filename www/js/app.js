@@ -43,6 +43,25 @@ ons.ready(function() {
     Util.saveItem();
   });
   
+  // 合計の確認ボタンタップ時の処理
+  $('#sumButton').on('click', () => {
+    let items = Util.getItems();
+    let values = Object.values(items);
+    let groupData = _.zip.apply(this, values);
+    
+    // 合計を算出
+    let message = '';
+    groupData.forEach((group, index) => {
+      message += $('#dataLabels ons-button').eq(index).text();
+      message += '：';
+      message += group.reduce((prev, current) => { 
+        return prev + current;
+      });
+      message += '<br>';
+    });
+    ons.notification.alert({message:message, title:'合計'});
+  });
+  
   // 分析結果の確認ボタンタップ時の処理
   $('#analyzeButton').on('click', () => {
     // 保存済みの全データを取得
@@ -50,20 +69,20 @@ ons.ready(function() {
     // 値の部分のみをArray型で抽出
     let values = Object.values(items);
     // 2次元配列の行と列を入れ替える
-    let targetData = _.zip.apply(this, values);
+    let groupData = _.zip.apply(this, values);
     
     // 分散分析
-    let anovaPvalue = jStat.anovaftest.apply(this, targetData);
+    let anovaPvalue = jStat.anovaftest.apply(this, groupData);
+    console.log(anovaPvalue);
     let message = '';
     if (anovaPvalue < 0.05){
-      message += '3グループの母平均に差があります<br>';
+      message += '3グループ間の平均値に差があります<br>';
     } else {
-      message += '3グループの母平均に差はありません<br>';
+      message += '3グループ間の平均値に差はありません<br>';
     }
-    console.log(anovaPvalue);
     
     // テューキーの多重比較検定
-    let tukeyPvalue = jStat.tukeyhsd(targetData);
+    let tukeyPvalue = jStat.tukeyhsd(groupData);
     console.log(tukeyPvalue);
     tukeyPvalue.forEach((value) => {
       let factor1 = value[0][0];
@@ -108,6 +127,7 @@ class Util {
     items[today] = count;
     /*
     // テストデータ
+    items = {};
     items['2018-02-01']=[40,50,60];
     items['2018-02-02']=[39,51,55];
     items['2018-02-03']=[52,46,57];
