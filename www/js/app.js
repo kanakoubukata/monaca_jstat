@@ -45,18 +45,18 @@ ons.ready(function() {
   
   // 合計の確認ボタンタップ時の処理
   $('#sumButton').on('click', () => {
+    // 保存済みの全データを取得
     let items = Util.getItems();
+    // 値の部分のみをArray型で抽出
     let values = Object.values(items);
-    let groupData = _.zip.apply(this, values);
+    // 2次元配列の列方向合計を得る
+    let sumValues = jStat(values).sum();
     
-    // 合計を算出
     let message = '';
-    groupData.forEach((group, index) => {
+    sumValues.forEach((value, index) => {
       message += $('#dataLabels ons-button').eq(index).text();
       message += '：';
-      message += group.reduce((prev, current) => { 
-        return prev + current;
-      });
+      message += value;
       message += '<br>';
     });
     ons.notification.alert({message:message, title:'合計'});
@@ -69,7 +69,7 @@ ons.ready(function() {
     // 値の部分のみをArray型で抽出
     let values = Object.values(items);
     // 2次元配列の行と列を入れ替える
-    let groupData = _.zip.apply(this, values);
+    let groupData = jStat.transpose(values);
     
     // 分散分析
     let anovaPvalue = jStat.anovaftest.apply(this, groupData);
